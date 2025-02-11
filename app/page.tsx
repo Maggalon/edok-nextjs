@@ -1,101 +1,160 @@
-import Image from "next/image";
+"use client"
+
+import { useEffect, useState } from 'react';
+import { Search, MapPin, Menu } from 'lucide-react';
+import { CollectionItem } from '../lib/types';
+import { ItemDetails } from '../components/item-details';
+import { ItemCard } from '../components/item-card';
+import { calculateDistance } from '@/lib/helpers';
+// import dynamic from 'next/dynamic';
+
+// const Map = dynamic(() => import('../components/map'), { ssr: false });
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [view, setView] = useState<'list' | 'map'>('list');
+  const [sortBy, setSortBy] = useState('Relevance');
+  const [selectedItem, setSelectedItem] = useState<CollectionItem | null>(null);
+  const [items, setItems] = useState<CollectionItem[] | null>()
+  const [geolocation, setGeolocation] = useState<{ lat: number, lng: number} | null>()
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const getItems = async () => {
+
+    const response = await fetch(`/api/items`)
+    const data = await response.json()
+    //console.log(data.results);
+    const availableItems: CollectionItem[] = []
+
+    for (let item of data.results) {
+      
+      //console.log(item);
+      const newAvailableItem: CollectionItem = {
+        id: item.id,
+        newPrice: item.newprice,
+        quantity: item.quantity,
+        collectDay: item.collectday.toLowerCase(),
+        collectTime: JSON.parse(item.collecttimerange).map((i: string) => i.split(' ')[1].slice(0, 5)).join('-'),
+        menuItem: {
+          name: item.menu.name,
+          type: item.menu.type,
+          description: item.menu.description,
+          initialPrice: item.menu.initialprice,
+          image: item.menu.image
+        },
+        branch: {
+          address: item.menu.branch.address,
+          votesNumber: item.menu.branch.votenumber | 0,
+          rating: item.menu.branch.votenumber > 0 ? 
+            Math.round(item.menu.branch.ratingsum / item.menu.branch.votesnumber * 100) / 100 : undefined,
+          distance: !geolocation ? undefined :
+            Number(calculateDistance(
+              geolocation.lat, 
+              geolocation.lng,
+              Number(item.menu.branch.coordinates.split(',')[0].replace('(', '')),
+              Number(item.menu.branch.coordinates.split(',')[1].replace(')', '')) 
+            ).toFixed(2))
+        },
+        company: {
+          name: item.menu.branch.company.name,
+          logo: item.menu.branch.company.logo
+        }
+      }
+
+      console.log(newAvailableItem);
+      availableItems.push(newAvailableItem)
+      
+    }
+
+    setItems(availableItems)
+    
+  }
+
+  const getGeolocation = () => {
+    function success(pos: { coords: any; }) {
+      const crd = pos.coords;
+      
+      setGeolocation({ lat: crd.latitude, lng: crd.longitude })
+    }
+
+    navigator.geolocation.getCurrentPosition(success);
+  }
+
+  useEffect(() => {
+    getGeolocation()
+  }, [])
+
+  useEffect(() => {
+    if (geolocation) {
+      getItems()
+    }
+  }, [geolocation])
+
+  if (selectedItem) {
+    return (
+      <ItemDetails selectedItem={selectedItem} setSelectedItem={setSelectedItem} />
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Fixed Header Section */}
+      <div className="fixed top-0 left-0 right-0 bg-white z-10">
+        {/* Search Header */}
+        <div className="bg-white p-4 shadow-sm">
+          <div className="flex gap-3">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Поиск"
+                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+            </div>
+            <button className="p-2 border border-gray-200 rounded-lg hover:bg-primary-50">
+              <Menu className="w-6 h-6 text-gray-700" />
+            </button>
+            <button className="p-2 border border-gray-200 rounded-lg hover:bg-primary-50">
+              <MapPin className="w-6 h-6 text-gray-700" />
+            </button>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* View Toggle */}
+        <div className="flex rounded-full bg-gray-100 mx-4 my-2">
+          <button
+            className={`flex-1 py-3 rounded-full ${view === 'list' ? 'bg-primary-600 text-white' : 'text-gray-700 hover:bg-primary-50'}`}
+            onClick={() => setView('list')}
+          >
+            Список
+          </button>
+          <button
+            className={`flex-1 py-3 rounded-full ${view === 'map' ? 'bg-primary-600 text-white' : 'text-gray-700 hover:bg-primary-50'}`}
+            onClick={() => setView('map')}
+          >
+            Карта
+          </button>
+        </div>
+
+        {/* Sort Section */}
+        {view === 'list' && 
+          <div className="px-4 py-2 flex items-center bg-white border-b border-gray-100">
+            <span className="text-gray-700">Сортировать по: </span>
+            <button className="ml-2 font-semibold text-gray-900 flex items-center hover:text-primary-600">
+              {sortBy}
+              <span className="ml-1">▼</span>
+            </button>
+          </div>
+        }
+      </div>
+
+      {/* Items List - Add padding top to account for fixed header */}
+      <div className="mt-44 mb-20 p-4 space-y-4">
+        {items && view === 'list' && items.map((item) => (
+          <ItemCard key={item.id} item={item} setSelectedItem={setSelectedItem} />
+        ))}
+        {/* {view === 'map' &&
+          <Map coordinates={{ lat: 43.13, lng: 131.91 }} />
+        } */}
+      </div>
     </div>
   );
 }
