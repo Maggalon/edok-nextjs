@@ -1,10 +1,12 @@
+"use server"
+
 import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 const key = new TextEncoder().encode(process.env.JWT_SECRET)
 
-export const SESSION_DURATION = 60 * 60 * 1000
+const SESSION_DURATION = 60 * 60 * 1000
 
 export async function encrypt(payload: any) {
     return await new SignJWT(payload)
