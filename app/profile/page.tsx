@@ -52,7 +52,15 @@ export default function Profile() {
     const authenticateUser = async () => {
         const WebApp = (await import('@twa-dev/sdk')).default
         WebApp.ready()
+        
+        console.log('WebApp version:', WebApp.version)
+        console.log('WebApp platform:', WebApp.platform)
+        console.log('WebApp initDataUnsafe:', WebApp.initDataUnsafe)
+        console.log('Current URL:', window.location.href)
+        
         const initData = WebApp.initData
+        console.log('InitData:', initData)
+        
         if (initData) {
             try {
                 const response = await fetch('/api/auth', {
