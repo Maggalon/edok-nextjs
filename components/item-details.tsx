@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import React from "react";
 import { redirect } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { getSession } from "@/lib/session";
 
 interface ItemDetailsProps {
     selectedItem: CollectionItem;
@@ -12,17 +13,17 @@ interface ItemDetailsProps {
 
 export const ItemDetails: React.FC<ItemDetailsProps> = ({ selectedItem, setSelectedItem }) => {
     
-  const { authenticated, user } = useAuth()
+  const session = getSession()
 
 
   const handleReserve = async () => {
 
-    if (!authenticated) {
-      redirect('/login')
+    if (!session) {
+      redirect('/profile')
     }
-    console.log(user);
+    // console.log(user);
     
-    alert(new Date().toISOString())
+    alert("Заказ зарезервирован")
   }
   
   return (
