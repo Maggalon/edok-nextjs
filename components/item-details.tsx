@@ -1,10 +1,11 @@
 import { ChevronLeft, Share2, Heart, ShoppingBag, Star, MapPinIcon, Calendar, ChevronRight, Clock } from "lucide-react";
 import { CollectionItem } from "../lib/types";
 import { createClient } from "@/lib/supabase/server";
-import React from "react";
+import React, { useContext } from "react";
 import { redirect } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { getSession } from "@/lib/session";
+import { TWAContext } from "@/context/twa-context";
 
 interface ItemDetailsProps {
     selectedItem: CollectionItem;
@@ -14,7 +15,8 @@ interface ItemDetailsProps {
 export const ItemDetails: React.FC<ItemDetailsProps> = ({ selectedItem, setSelectedItem }) => {
     
   const session = getSession()
-
+  const context = useContext(TWAContext)
+  const webApp = context?.webApp
 
   const handleReserve = async () => {
 
@@ -22,8 +24,19 @@ export const ItemDetails: React.FC<ItemDetailsProps> = ({ selectedItem, setSelec
       redirect('/profile')
     }
     // console.log(user);
+    const response = await fetch(`/api/reservations`, {
+      method: "POST",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: webApp?.initDataUnsafe.user?.id,
+        item_id: selectedItem.id
+      })
+    })
+    const data = await response.json()
+    console.log(data);
     
-    alert("Заказ зарезервирован")
+    if (data.success) alert("Заказ зарезервирован")
+
   }
   
   return (

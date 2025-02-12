@@ -29,8 +29,9 @@ import { BadgeRussianRuble, Croissant, ShoppingBag, Smile } from 'lucide-react'
 import Link from 'next/link'
 import { getSession } from '@/lib/session'
 import TelegramAuth from '@/components/telegram-auth'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { Telegram } from '@twa-dev/types'
+import { TWAContext } from '@/context/twa-context'
 
 declare global {
     interface Window {
@@ -43,6 +44,9 @@ export default function Profile() {
     const router = useRouter()
     const [userName, setUserName] = useState<string>()
 
+    const context = useContext(TWAContext)
+    const webApp = context?.webApp
+
     useEffect(() => {
         checkAuth()
     }, [])
@@ -53,47 +57,47 @@ export default function Profile() {
             setIsAuthenticated(true)
             const session = await getSession()
             console.log(JSON.stringify(session, null, 2))
-            const webApp = await waitForWebApp() as Telegram["WebApp"];
-            webApp.ready();
-            setUserName(webApp.initDataUnsafe.user?.first_name)
+            // const webApp = await waitForWebApp() as Telegram["WebApp"];
+            // webApp.ready();
+            setUserName(webApp!.initDataUnsafe.user?.first_name)
         }
     }
 
-    const waitForWebApp = () => {
-        return new Promise((resolve) => {
-            if (window.Telegram?.WebApp) {
-                resolve(window.Telegram.WebApp);
-            } else {
-                const interval = setInterval(() => {
-                    if (window.Telegram?.WebApp) {
-                        clearInterval(interval);
-                        resolve(window.Telegram.WebApp);
-                    }
-                }, 100);
-            }
-        });
-    };
+    // const waitForWebApp = () => {
+    //     return new Promise((resolve) => {
+    //         if (window.Telegram?.WebApp) {
+    //             resolve(window.Telegram.WebApp);
+    //         } else {
+    //             const interval = setInterval(() => {
+    //                 if (window.Telegram?.WebApp) {
+    //                     clearInterval(interval);
+    //                     resolve(window.Telegram.WebApp);
+    //                 }
+    //             }, 100);
+    //         }
+    //     });
+    // };
 
     const authenticateUser = async () => {
         // const WebApp = (await import('@twa-dev/sdk')).default
         // Add a check to ensure we're in Telegram
         
 
-        const webApp = await waitForWebApp() as Telegram["WebApp"];
-        webApp.ready();
+        // const webApp = await waitForWebApp() as Telegram["WebApp"];
+        // webApp.ready();
 
         console.log('Direct WebApp access:', {
-            version: webApp.version,
-            platform: webApp.platform,
-            initData: webApp.initData,
-            initDataUnsafe: webApp.initDataUnsafe,
-            colorScheme: webApp.colorScheme,
-            headerColor: webApp.headerColor,
+            version: webApp!.version,
+            platform: webApp!.platform,
+            initData: webApp!.initData,
+            initDataUnsafe: webApp!.initDataUnsafe,
+            colorScheme: webApp!.colorScheme,
+            headerColor: webApp!.headerColor,
         });
 
-        setUserName(webApp.initDataUnsafe.user?.first_name)
+        setUserName(webApp!.initDataUnsafe.user?.first_name)
 
-        const initData = webApp.initData;
+        const initData = webApp!.initData;
         
         if (!initData) {
             console.error('No init data available');

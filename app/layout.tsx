@@ -4,6 +4,7 @@ import "./globals.css";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { YMapLoader } from "@/components/map-loader";
 import Script from "next/script";
+import { TWAProvider } from "@/context/twa-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,8 +31,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
-        
+        <TWAProvider>
+          {children}
+        </TWAProvider>
+  
         {/* Bottom Navigation */}
         <BottomNavigation />
         {/* <YMapLoader /> */}
