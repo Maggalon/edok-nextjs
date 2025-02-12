@@ -30,6 +30,13 @@ import Link from 'next/link'
 import { getSession } from '@/lib/session'
 import TelegramAuth from '@/components/telegram-auth'
 import { useState, useEffect } from 'react'
+import { Telegram } from '@twa-dev/types'
+
+declare global {
+    interface Window {
+      Telegram: Telegram;
+    }
+  }
 
 export default function Profile() {
     const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -51,15 +58,34 @@ export default function Profile() {
 
     const authenticateUser = async () => {
         const WebApp = (await import('@twa-dev/sdk')).default
-        WebApp.ready()
+        // Add a check to ensure we're in Telegram
+        if (!window.Telegram?.WebApp) {
+            console.error('Not running in Telegram Web App');
+            return;
+        }
         
-        console.log('WebApp version:', WebApp.version)
-        console.log('WebApp platform:', WebApp.platform)
-        console.log('WebApp initDataUnsafe:', WebApp.initDataUnsafe)
-        console.log('Current URL:', window.location.href)
+        // Wait for WebApp to be ready
+        await new Promise((resolve) => {
+            WebApp.ready();
+            WebApp.onEvent('viewportChanged', resolve);
+            // Fallback in case viewport doesn't change
+            setTimeout(resolve, 100);
+        });
         
-        const initData = WebApp.initData
-        console.log('InitData:', initData)
+        const initData = WebApp.initData;
+        console.log({
+            version: WebApp.version,
+            platform: WebApp.platform,
+            initDataUnsafe: WebApp.initDataUnsafe,
+            colorScheme: WebApp.colorScheme,
+            headerColor: WebApp.headerColor,
+            initData
+        });
+        
+        if (!initData) {
+            console.error('No init data available');
+            return;
+        }
         
         if (initData) {
             try {
