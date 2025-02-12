@@ -31,7 +31,7 @@ import { getSession } from '@/lib/session'
 import TelegramAuth from '@/components/telegram-auth'
 import { useState, useEffect } from 'react'
 
-export default async function Profile() {
+export default function Profile() {
     const [isAuthenticated, setIsAuthenticated] = useState(false)
     const router = useRouter()
     const [userData, setUserData] = useState<string>()
