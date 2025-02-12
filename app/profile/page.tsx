@@ -41,7 +41,7 @@ declare global {
 export default function Profile() {
     const [isAuthenticated, setIsAuthenticated] = useState(false)
     const router = useRouter()
-    const [userData, setUserData] = useState<string>()
+    const [userName, setUserName] = useState<string>()
 
     useEffect(() => {
         checkAuth()
@@ -52,7 +52,7 @@ export default function Profile() {
         if (response.ok) {
             setIsAuthenticated(true)
             const session = await getSession()
-            setUserData(JSON.stringify(session, null, 2))
+            console.log(JSON.stringify(session, null, 2))
         }
     }
 
@@ -85,6 +85,8 @@ export default function Profile() {
             colorScheme: webApp.colorScheme,
             headerColor: webApp.headerColor,
         });
+
+        setUserName(webApp.initDataUnsafe.user?.first_name)
 
         const initData = webApp.initData;
         
@@ -129,9 +131,8 @@ export default function Profile() {
     <div className='flex flex-col gap-10 items-center'>
         <div className='font-bold p-3 text-2xl flex gap-3 w-screen items-center justify-start'>
             <Smile size={48} className='text-primary-600 bg-primary-200 rounded-full p-2' />
-            {"Maggalon"}
+            {userName}
         </div>       
-        {userData} 
         <div className='font-semibold text-lg flex flex-col items-center gap-3'>
             <ShoppingBag size={48} className='text-primary-600' />
             Здесь будет история заказов
