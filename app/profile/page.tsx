@@ -53,26 +53,31 @@ export default function Profile() {
             setIsAuthenticated(true)
             const session = await getSession()
             console.log(JSON.stringify(session, null, 2))
+            const webApp = await waitForWebApp() as Telegram["WebApp"];
+            webApp.ready();
+            setUserName(webApp.initDataUnsafe.user?.first_name)
         }
     }
+
+    const waitForWebApp = () => {
+        return new Promise((resolve) => {
+            if (window.Telegram?.WebApp) {
+                resolve(window.Telegram.WebApp);
+            } else {
+                const interval = setInterval(() => {
+                    if (window.Telegram?.WebApp) {
+                        clearInterval(interval);
+                        resolve(window.Telegram.WebApp);
+                    }
+                }, 100);
+            }
+        });
+    };
 
     const authenticateUser = async () => {
         // const WebApp = (await import('@twa-dev/sdk')).default
         // Add a check to ensure we're in Telegram
-        const waitForWebApp = () => {
-            return new Promise((resolve) => {
-                if (window.Telegram?.WebApp) {
-                    resolve(window.Telegram.WebApp);
-                } else {
-                    const interval = setInterval(() => {
-                        if (window.Telegram?.WebApp) {
-                            clearInterval(interval);
-                            resolve(window.Telegram.WebApp);
-                        }
-                    }, 100);
-                }
-            });
-        };
+        
 
         const webApp = await waitForWebApp() as Telegram["WebApp"];
         webApp.ready();
