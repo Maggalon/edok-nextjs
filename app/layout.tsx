@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { YMapLoader } from "@/components/map-loader";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,6 +35,7 @@ export default function RootLayout({
         {/* Bottom Navigation */}
         <BottomNavigation />
         {/* <YMapLoader /> */}
+        <Script src="https://telegram.org/js/telegram-web-app.js" />
       </body>
     </html>
   );

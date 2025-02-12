@@ -57,30 +57,36 @@ export default function Profile() {
     }
 
     const authenticateUser = async () => {
-        const WebApp = (await import('@twa-dev/sdk')).default
+        // const WebApp = (await import('@twa-dev/sdk')).default
         // Add a check to ensure we're in Telegram
-        if (!window.Telegram?.WebApp) {
-            console.error('Not running in Telegram Web App');
-            return;
-        }
-        
-        // Wait for WebApp to be ready
-        await new Promise((resolve) => {
-            WebApp.ready();
-            WebApp.onEvent('viewportChanged', resolve);
-            // Fallback in case viewport doesn't change
-            setTimeout(resolve, 100);
+        const waitForWebApp = () => {
+            return new Promise((resolve) => {
+                if (window.Telegram?.WebApp) {
+                    resolve(window.Telegram.WebApp);
+                } else {
+                    const interval = setInterval(() => {
+                        if (window.Telegram?.WebApp) {
+                            clearInterval(interval);
+                            resolve(window.Telegram.WebApp);
+                        }
+                    }, 100);
+                }
+            });
+        };
+
+        const webApp = await waitForWebApp() as Telegram["WebApp"];
+        webApp.ready();
+
+        console.log('Direct WebApp access:', {
+            version: webApp.version,
+            platform: webApp.platform,
+            initData: webApp.initData,
+            initDataUnsafe: webApp.initDataUnsafe,
+            colorScheme: webApp.colorScheme,
+            headerColor: webApp.headerColor,
         });
-        
-        const initData = WebApp.initData;
-        console.log({
-            version: WebApp.version,
-            platform: WebApp.platform,
-            initDataUnsafe: WebApp.initDataUnsafe,
-            colorScheme: WebApp.colorScheme,
-            headerColor: WebApp.headerColor,
-            initData
-        });
+
+        const initData = webApp.initData;
         
         if (!initData) {
             console.error('No init data available');
