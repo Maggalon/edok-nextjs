@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
         const { user_id, item_id } = body
 
         const { data: item_res, error: item_error } = await supabase
-            .from("items")
+            .from("item")
             .select("*")
             .eq("id", item_id)
         if (item_error) return NextResponse.json({ error: item_error.message, status: 400 })
