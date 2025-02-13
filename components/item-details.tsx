@@ -20,25 +20,23 @@ export const ItemDetails: React.FC<ItemDetailsProps> = ({ selectedItem, setSelec
   const webApp = context?.webApp
 
   const handleReserve = async () => {
-    // const session = await fetch('/api/session')
-    // if (!session.ok) {
-    //   redirect('/profile')
-    // }
-    // // console.log(user);
-    // const response = await fetch(`/api/reservations`, {
-    //   method: "POST",
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({
-    //     user_id: webApp?.initDataUnsafe.user?.id,
-    //     item_id: selectedItem.id
-    //   })
-    // })
-    // const data = await response.json()
-    // console.log(data);
+    const session = await fetch('/api/session')
+    if (!session.ok) {
+      redirect('/profile')
+    }
+    // console.log(user);
+    const response = await fetch(`/api/reservations`, {
+      method: "POST",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: webApp?.initDataUnsafe.user?.id,
+        item_id: selectedItem.id
+      })
+    })
+    const data = await response.json()
+    console.log(data);
     
-    // if (data.success) alert("Заказ зарезервирован")
-
-    toast("Заказ зарезервирован")
+    if (data.success) toast.info("Заказ зарезервирован", {position: 'top-center'})
 
   }
   
@@ -152,7 +150,7 @@ export const ItemDetails: React.FC<ItemDetailsProps> = ({ selectedItem, setSelec
             </button>
           </div>
 
-          <ToastContainer />
+          <ToastContainer className="text-xl font-semibold" />
         </div>
       );
 }

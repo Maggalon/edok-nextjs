@@ -5,6 +5,7 @@ import { ItemDetails } from "@/components/item-details";
 import { TWAContext } from "@/context/twa-context";
 import { convertIntoCollectionItem } from "@/lib/helpers";
 import { CollectionItem, Reservation, ReservedItem } from "@/lib/types";
+import { redirect } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 
 export default function Orders() {
@@ -17,6 +18,11 @@ export default function Orders() {
     const [selectedItem, setSelectedItem] = useState<CollectionItem | null>(null);
 
     const getReservations = async () => {
+      const session = await fetch('/api/session')
+      if (!session.ok) {
+        redirect('/profile')
+      }
+
       const results = await fetch(`/api/reservations?userId=${webApp?.initDataUnsafe.user?.id}`)
       const data = await results.json()
 
