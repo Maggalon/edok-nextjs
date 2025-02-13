@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Search, MapPin, Menu } from 'lucide-react';
 import { CollectionItem } from '../lib/types';
 import { ItemDetails } from '../components/item-details';
 import { ItemCard } from '../components/item-card';
-import { calculateDistance } from '@/lib/helpers';
+import { calculateDistance, convertIntoCollectionItem } from '@/lib/helpers';
+import { TWAContext } from '@/context/twa-context';
 // import dynamic from 'next/dynamic';
 
 // const Map = dynamic(() => import('../components/map'), { ssr: false });
@@ -15,7 +16,9 @@ export default function Home() {
   const [sortBy, setSortBy] = useState('Relevance');
   const [selectedItem, setSelectedItem] = useState<CollectionItem | null>(null);
   const [items, setItems] = useState<CollectionItem[] | null>()
-  const [geolocation, setGeolocation] = useState<{ lat: number, lng: number} | null>()
+  
+  const context = useContext(TWAContext)
+  const geolocation = context?.geolocation
 
   const getItems = async () => {
 
@@ -27,37 +30,7 @@ export default function Home() {
     for (let item of data.results) {
       
       //console.log(item);
-      const newAvailableItem: CollectionItem = {
-        id: item.id,
-        newPrice: item.newprice,
-        quantity: item.quantity,
-        collectDay: item.collectday.toLowerCase(),
-        collectTime: JSON.parse(item.collecttimerange).map((i: string) => i.split(' ')[1].slice(0, 5)).join('-'),
-        menuItem: {
-          name: item.menu.name,
-          type: item.menu.type,
-          description: item.menu.description,
-          initialPrice: item.menu.initialprice,
-          image: item.menu.image
-        },
-        branch: {
-          address: item.menu.branch.address,
-          votesNumber: item.menu.branch.votenumber | 0,
-          rating: item.menu.branch.votenumber > 0 ? 
-            Math.round(item.menu.branch.ratingsum / item.menu.branch.votesnumber * 100) / 100 : undefined,
-          distance: !geolocation ? undefined :
-            Number(calculateDistance(
-              geolocation.lat, 
-              geolocation.lng,
-              Number(item.menu.branch.coordinates.split(',')[0].replace('(', '')),
-              Number(item.menu.branch.coordinates.split(',')[1].replace(')', '')) 
-            ).toFixed(2))
-        },
-        company: {
-          name: item.menu.branch.company.name,
-          logo: item.menu.branch.company.logo
-        }
-      }
+      const newAvailableItem: CollectionItem = convertIntoCollectionItem(item, geolocation)
 
       console.log(newAvailableItem);
       availableItems.push(newAvailableItem)
@@ -67,20 +40,6 @@ export default function Home() {
     setItems(availableItems)
     
   }
-
-  const getGeolocation = () => {
-    function success(pos: { coords: any; }) {
-      const crd = pos.coords;
-      
-      setGeolocation({ lat: crd.latitude, lng: crd.longitude })
-    }
-
-    navigator.geolocation.getCurrentPosition(success);
-  }
-
-  useEffect(() => {
-    getGeolocation()
-  }, [])
 
   useEffect(() => {
     if (geolocation) {

@@ -1,3 +1,5 @@
+import { CollectionItem } from "./types";
+
 export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
     // Earth's radius in kilometers
     const R = 6371;
@@ -122,3 +124,38 @@ const defaultRules: ValidationRules = {
         requireSpecialChar: true
     }
 };
+
+export const convertIntoCollectionItem = (item: any, geolocation: {lat: number, lng: number} | null | undefined) => {
+    const newAvailableItem: CollectionItem = {
+        id: item.id,
+        newPrice: item.newprice,
+        quantity: item.quantity,
+        collectDay: item.collectday.toLowerCase(),
+        collectTime: JSON.parse(item.collecttimerange).map((i: string) => i.split(' ')[1].slice(0, 5)).join('-'),
+        menuItem: {
+            name: item.menu.name,
+            type: item.menu.type,
+            description: item.menu.description,
+            initialPrice: item.menu.initialprice,
+            image: item.menu.image
+        },
+        branch: {
+            address: item.menu.branch.address,
+            votesNumber: item.menu.branch.votenumber | 0,
+            rating: item.menu.branch.votenumber > 0 ? 
+            Math.round(item.menu.branch.ratingsum / item.menu.branch.votesnumber * 100) / 100 : undefined,
+            distance: !geolocation ? undefined :
+            Number(calculateDistance(
+                geolocation.lat, 
+                geolocation.lng,
+                Number(item.menu.branch.coordinates.split(',')[0].replace('(', '')),
+                Number(item.menu.branch.coordinates.split(',')[1].replace(')', '')) 
+            ).toFixed(2))
+        },
+        company: {
+            name: item.menu.branch.company.name,
+            logo: item.menu.branch.company.logo
+        }
+    }
+    return newAvailableItem
+}

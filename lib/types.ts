@@ -1,5 +1,5 @@
 export interface CollectionItem {
-    id: number;
+    id: string;
     menuItem: MenuItemInfo;
     newPrice: number;
     quantity: number;
@@ -27,4 +27,16 @@ export interface MenuItemInfo {
     type: string;
     image: string;
     initialPrice: string;
+}
+
+export interface Reservation {
+    id: string;
+    user_id: string;
+    item_id: string;
+    created_at: string;
+}
+
+export interface ReservedItem {
+    reservationInfo: Reservation;
+    itemInfo: CollectionItem;
 }

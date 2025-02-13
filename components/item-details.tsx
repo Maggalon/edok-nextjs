@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { getSession } from "@/lib/session";
 import { TWAContext } from "@/context/twa-context";
+import { toast, ToastContainer } from "react-toastify";
 
 interface ItemDetailsProps {
     selectedItem: CollectionItem;
@@ -14,28 +15,30 @@ interface ItemDetailsProps {
 
 export const ItemDetails: React.FC<ItemDetailsProps> = ({ selectedItem, setSelectedItem }) => {
     
-  const session = getSession()
+  //const session = getSession()
   const context = useContext(TWAContext)
   const webApp = context?.webApp
 
   const handleReserve = async () => {
-
-    if (!session) {
-      redirect('/profile')
-    }
-    // console.log(user);
-    const response = await fetch(`/api/reservations`, {
-      method: "POST",
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        user_id: webApp?.initDataUnsafe.user?.id,
-        item_id: selectedItem.id
-      })
-    })
-    const data = await response.json()
-    console.log(data);
+    // const session = await fetch('/api/session')
+    // if (!session.ok) {
+    //   redirect('/profile')
+    // }
+    // // console.log(user);
+    // const response = await fetch(`/api/reservations`, {
+    //   method: "POST",
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({
+    //     user_id: webApp?.initDataUnsafe.user?.id,
+    //     item_id: selectedItem.id
+    //   })
+    // })
+    // const data = await response.json()
+    // console.log(data);
     
-    if (data.success) alert("Заказ зарезервирован")
+    // if (data.success) alert("Заказ зарезервирован")
+
+    toast("Заказ зарезервирован")
 
   }
   
@@ -148,6 +151,8 @@ export const ItemDetails: React.FC<ItemDetailsProps> = ({ selectedItem, setSelec
               Забронировать
             </button>
           </div>
+
+          <ToastContainer />
         </div>
       );
 }

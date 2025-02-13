@@ -14,7 +14,8 @@ export async function GET(req: NextRequest) {
             .select("*")
             .eq('user_id', userId)
         if (error) return NextResponse.json({ error: error.message, status: 400 })
-
+        
+        return NextResponse.json({ data })
     } catch (e) {
         return NextResponse.json({ error: "Failed getting reservations", details: e instanceof Error ? e.message : String(e) }, { status: 500 })
     }

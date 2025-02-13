@@ -9,11 +9,17 @@ declare global {
     }
 }
 
-export const TWAContext = createContext<{ webApp: Telegram["WebApp"] | undefined } | undefined>(undefined)
+interface TWAContextProps {
+    webApp: Telegram["WebApp"] | undefined;
+    geolocation: { lat: number, lng: number} | null | undefined;
+}
+
+export const TWAContext = createContext<TWAContextProps | undefined>(undefined)
 
 export const TWAProvider = ({ children }: Readonly<{children: React.ReactNode}>) => {
 
     const [webApp, setWebApp] = useState<Telegram["WebApp"]>()
+    const [geolocation, setGeolocation] = useState<{ lat: number, lng: number} | null>()
 
     const getWebApp = async () => {
         const webApp = await waitForWebApp() as Telegram["WebApp"]
@@ -36,12 +42,23 @@ export const TWAProvider = ({ children }: Readonly<{children: React.ReactNode}>)
         });
     };
 
+    const getGeolocation = () => {
+        function success(pos: { coords: any; }) {
+          const crd = pos.coords;
+          
+          setGeolocation({ lat: crd.latitude, lng: crd.longitude })
+        }
+    
+        navigator.geolocation.getCurrentPosition(success);
+    }
+
     useEffect(() => {
         getWebApp()
+        getGeolocation()
     }, [])
 
     return (
-        <TWAContext.Provider value={{ webApp }}>
+        <TWAContext.Provider value={{ webApp, geolocation }}>
             {children}
         </TWAContext.Provider>
     )
