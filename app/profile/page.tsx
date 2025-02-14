@@ -32,17 +32,14 @@ import TelegramAuth from '@/components/telegram-auth'
 import { useState, useEffect, useContext } from 'react'
 import { Telegram } from '@twa-dev/types'
 import { TWAContext } from '@/context/twa-context'
-
-declare global {
-    interface Window {
-      Telegram: Telegram;
-    }
-  }
+import { HistoryCard } from '@/components/history-card'
+import { HistoryItem } from '@/lib/types'
 
 export default function Profile() {
-    const [isAuthenticated, setIsAuthenticated] = useState(false)
+    const [isAuthenticated, setIsAuthenticated] = useState(true)
     const router = useRouter()
     const [userName, setUserName] = useState<string>()
+    const [history, setHistory] = useState<HistoryItem[]>()
 
     const context = useContext(TWAContext)
     const webApp = context?.webApp
@@ -50,6 +47,10 @@ export default function Profile() {
     useEffect(() => {
         checkAuth()
     }, [])
+
+    useEffect(() => {
+        getHistory()
+    }, [isAuthenticated])
 
     const checkAuth = async () => {
         const response = await fetch('/api/session')
@@ -60,6 +61,15 @@ export default function Profile() {
             // const webApp = await waitForWebApp() as Telegram["WebApp"];
             // webApp.ready();
             setUserName(webApp!.initDataUnsafe.user?.first_name)
+        }
+    }
+
+    const getHistory = async () => {
+        if (isAuthenticated) {
+            const response = await fetch(`api/history?userId=${972737130}`)
+            const { data } = await response.json()
+            console.log(data);
+            setHistory(data)
         }
     }
 
@@ -137,31 +147,36 @@ export default function Profile() {
     }
   
   return (
-    <div className='flex flex-col gap-10 items-center'>
-        <div className='font-bold p-3 text-2xl flex gap-3 w-screen items-center justify-start'>
+    <div className='flex flex-col gap-10 mx-5'>
+        <div className='fixed left-2 bg-white font-bold p-3 text-2xl flex gap-3 w-screen shadow-sm items-center justify-start'>
             <Smile size={48} className='text-primary-600 bg-primary-200 rounded-full p-2' />
             {userName}
         </div>       
-        <div className='font-semibold text-lg flex flex-col items-center gap-3'>
-            <ShoppingBag size={48} className='text-primary-600' />
+        <div className='font-semibold text-lg flex flex-col items-center gap-3 border-2 rounded-lg h-96 overflow-auto p-3 mt-24'>
+            {/* <ShoppingBag size={48} className='text-primary-600' />
             Здесь будет история заказов
-            <Link href="/" className='text-primary-600 font-semibold underline underline-offset-4'>Сделай первый</Link>
+            <Link href="/" className='text-primary-600 font-semibold underline underline-offset-4'>Сделай первый</Link> */}
+            {history && history.map(item => {
+                return (
+                    <HistoryCard key={item.id} item={item} />
+                )
+            })}
         </div>
-        <div className='flex flex-col items-start gap-2 mx-5 p-5 border shadow-lg rounded-lg'>
+        <div className='flex flex-col items-start gap-2 p-5 border shadow-lg rounded-lg'>
             <span className='font-semibold text-primary-600'>Пригласи друга</span>
             <span>Экономь деньги и спасай планету вместе с друзьями</span>
-            <button type='button' className='bg-primary-600 px-4 py-2 text-white font-semibold rounded-full'>Расскажи всем!</button>
+            <a href={`https://t.me/share/url?url=${encodeURI("https://t.me/edok_webapp_bot")}`} className='bg-primary-600 px-4 py-2 text-white font-semibold rounded-full'>Расскажи всем!</a>
         </div>
-        <div className='flex gap-3 mx-5'>
+        <div className='flex gap-3 mb-24'>
             <div className='flex-1 flex flex-col gap-3 items-center p-5 border shadow-lg rounded-lg'>
-                <div className='text-center text-primary-600 text-lg font-semibold'>Экономия отходов еды</div>
+                <div className='text-center text-primary-600 text-xl font-semibold w-24'>Спасено еды</div>
                 <Croissant size={48} className='text-primary-600' />
-                <div className='font-semibold'>0 КГ</div>
+                <div className='font-semibold'>{history?.map(item => item.menu.weight).reduce((acc, n) => acc + n, 0)} КГ</div>
             </div>
             <div className='flex-1 flex flex-col gap-3 items-center p-5 border shadow-lg rounded-lg'>
-                <div className='text-center text-primary-600 text-lg font-semibold'>Экономия бабла</div>
+                <div className='text-center text-primary-600 text-xl font-semibold'>Экономия денег</div>
                 <BadgeRussianRuble size={48} className='text-primary-600' />
-                <div className='font-semibold'>0 РУБ</div>
+                <div className='font-semibold'>{history?.map(item => item.menu.initialprice - item.price).reduce((acc, n) => acc + n, 0)} РУБ</div>
             </div>
         </div>
     </div>

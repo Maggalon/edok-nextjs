@@ -40,3 +40,22 @@ export interface ReservedItem {
     reservationInfo: Reservation;
     itemInfo: CollectionItem;
 }
+
+export interface HistoryItem {
+    id: string;
+    user_id: number;
+    price: number;
+    created_at: string;
+    menu: {
+        id: string;
+        name: string;
+        initialprice: number;
+        weight: number;
+        branch: {
+            company: {
+                name: string;
+                logo: string;
+            }
+        }
+    }
+}
