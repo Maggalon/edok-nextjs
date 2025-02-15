@@ -36,7 +36,7 @@ import { HistoryCard } from '@/components/history-card'
 import { HistoryItem } from '@/lib/types'
 
 export default function Profile() {
-    const [isAuthenticated, setIsAuthenticated] = useState(true)
+    const [isAuthenticated, setIsAuthenticated] = useState(false)
     const router = useRouter()
     const [userName, setUserName] = useState<string>()
     const [history, setHistory] = useState<HistoryItem[]>()
@@ -66,7 +66,7 @@ export default function Profile() {
 
     const getHistory = async () => {
         if (isAuthenticated) {
-            const response = await fetch(`api/history?userId=${972737130}`)
+            const response = await fetch(`api/history?userId=${webApp!.initDataUnsafe.user?.id}`)
             const { data } = await response.json()
             console.log(data);
             setHistory(data)
