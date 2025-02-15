@@ -34,6 +34,7 @@ export interface Reservation {
     user_id: string;
     item_id: string;
     created_at: string;
+    quantity: number;
 }
 
 export interface ReservedItem {

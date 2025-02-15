@@ -18,13 +18,15 @@ export default function Orders() {
     const [selectedItem, setSelectedItem] = useState<CollectionItem | null>(null);
 
     const getReservations = async () => {
-      const session = await fetch('/api/session')
-      if (!session.ok) {
-        redirect('/profile')
-      }
+      // const session = await fetch('/api/session')
+      // if (!session.ok) {
+      //   redirect('/profile')
+      // }
 
-      const results = await fetch(`/api/reservations?userId=${webApp?.initDataUnsafe.user?.id}`)
+      const results = await fetch(`/api/reservations?userId=${972737130}`)
       const data = await results.json()
+      console.log(data);
+      
 
       const items_info_raw = await fetch('/api/items', {
         method: "POST",
@@ -41,9 +43,17 @@ export default function Orders() {
         const newAvailableItem: CollectionItem = convertIntoCollectionItem(item, geolocation)
   
         console.log(newAvailableItem);
+
+        const reservations_of_current_item = data.data.filter((cur_item: Reservation) => cur_item.item_id === item.id)
+        const quantity = reservations_of_current_item.map((item: Reservation) => item.quantity).reduce((acc: number, n: number) => acc + n, 0) 
+        console.log(quantity);
+
         availableItems.push({
           itemInfo: newAvailableItem,
-          reservationInfo: data.data.find((reservation: Reservation) => reservation.item_id === newAvailableItem.id)
+          reservationInfo: {
+            ...data.data.find((reservation: Reservation) => reservation.item_id === newAvailableItem.id),
+            quantity
+          }
         })
         
       }
@@ -59,7 +69,7 @@ export default function Orders() {
 
     if (selectedItem) {
       return (
-        <ItemDetails selectedItem={selectedItem} setSelectedItem={setSelectedItem} />
+        <ItemDetails selectedItem={selectedItem} setSelectedItem={setSelectedItem} isActive={false} />
       );
     }
 

@@ -1,8 +1,10 @@
+"use client"
+
 import { ChevronLeft, Share2, Heart, ShoppingBag, Star, MapPinIcon, Calendar, ChevronRight, Clock } from "lucide-react";
 import { CollectionItem } from "../lib/types";
 import { createClient } from "@/lib/supabase/server";
-import React, { useContext } from "react";
-import { redirect } from "next/navigation";
+import React, { useContext, useState } from "react";
+import { redirect, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { getSession } from "@/lib/session";
 import { TWAContext } from "@/context/twa-context";
@@ -11,32 +13,43 @@ import { toast, ToastContainer } from "react-toastify";
 interface ItemDetailsProps {
     selectedItem: CollectionItem;
     setSelectedItem: (selectedItem: CollectionItem | null) => void;
+    isActive: boolean;
 }
 
-export const ItemDetails: React.FC<ItemDetailsProps> = ({ selectedItem, setSelectedItem }) => {
+export const ItemDetails: React.FC<ItemDetailsProps> = ({ selectedItem, setSelectedItem, isActive }) => {
     
-  //const session = getSession()
+  const router = useRouter()
   const context = useContext(TWAContext)
   const webApp = context?.webApp
 
+  const [quantity, setQuantity] = useState<number>(1)
+
   const handleReserve = async () => {
-    const session = await fetch('/api/session')
-    if (!session.ok) {
-      redirect('/profile')
-    }
+    // const session = await fetch('/api/session')
+    // if (!session.ok) {
+    //   redirect('/profile')
+    // }
     // console.log(user);
     const response = await fetch(`/api/reservations`, {
       method: "POST",
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        user_id: webApp?.initDataUnsafe.user?.id,
-        item_id: selectedItem.id
+        // user_id: webApp?.initDataUnsafe.user?.id,
+        user_id: 972737130,
+        item_id: selectedItem.id,
+        quantity
       })
     })
     const data = await response.json()
     console.log(data);
     
-    if (data.success) toast.info("Заказ зарезервирован", {position: 'top-center'})
+    if (data.success) {
+      toast.info("Заказ зарезервирован", {position: 'top-center'})
+      setSelectedItem({
+        ...selectedItem,
+        quantity: selectedItem.quantity - quantity
+      })
+    } else toast.error("Ошибка резервирования", {position: 'top-center'})
 
   }
   
@@ -138,17 +151,22 @@ export const ItemDetails: React.FC<ItemDetailsProps> = ({ selectedItem, setSelec
           </div>
   
           {/* Fixed Bottom Button */}
-          <div className="fixed bottom-16 left-0 right-0 p-4 bg-white border-t border-gray-100">
+          {isActive && <div className="fixed bottom-16 left-0 right-0 p-4 bg-white border-t border-gray-100">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <span className="text-gray-400 line-through">₽{selectedItem.menuItem.initialPrice}</span>
                 <span className="text-2xl font-bold text-primary-600">₽{selectedItem.newPrice}</span>
               </div>
             </div>
-            <button onClick={handleReserve} className="w-full bg-primary-600 text-white py-4 rounded-full font-semibold hover:bg-primary-700 transition-colors">
-              Забронировать
-            </button>
-          </div>
+            <div className="flex w-full justify-center">
+              <button onClick={() => setQuantity(Math.max(1, quantity-1))} className="bg-primary-600 p-4 border-r-2 rounded-l-full text-white font-semibold text-lg hover:bg-primary-700">-</button>
+              <button onClick={handleReserve} className="bg-primary-600 text-white px-4 font-semibold hover:bg-primary-700 transition-colors flex flex-col items-center justify-center">
+                Забронировать
+                <span>{`${quantity} шт.`}</span>
+              </button>
+              <button onClick={() => setQuantity(Math.min(selectedItem.quantity, quantity+1))} className="bg-primary-600 p-4 border-l-2 rounded-r-full text-white font-semibold text-lg hover:bg-primary-700">+</button>
+            </div>
+          </div>}
 
           <ToastContainer className="text-xl font-semibold" />
         </div>

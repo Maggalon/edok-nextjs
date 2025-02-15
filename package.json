@@ -15,6 +15,7 @@
     "@twa-dev/sdk": "^8.0.2",
     "@twa-dev/types": "^8.0.2",
     "@yandex/ymaps3-types": "^1.0.15731128",
+    "classnames": "^2.5.1",
     "jose": "^5.9.6",
     "lucide-react": "^0.475.0",
     "next": "15.1.6",

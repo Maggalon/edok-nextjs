@@ -28,6 +28,7 @@ export const ItemCardSmall: React.FC<{ item: ReservedItem; setSelectedItem: (sel
                 <h1 className="text-xl font-bold text-gray-900">{item.itemInfo.menuItem.name.length > 18 ? item.itemInfo.menuItem.name.slice(0, 16) + "..." : item.itemInfo.menuItem.name}</h1>
                 <p className="text-gray-600">{item.itemInfo.company.name}</p>
             </div>
+            <div className="text-primary-600 font-semibold text-lg">{item.reservationInfo.quantity} шт.</div>
             <QrCode size={64} onClick={handleOpen} className="text-primary-600 hover:bg-primary-100 p-1 rounded-xl" />
             <Modal isOpen={open} onClose={() => handleClose()}>
                 <QRCode data={JSON.stringify(item.reservationInfo)} />

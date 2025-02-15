@@ -174,7 +174,7 @@ export default function Profile() {
                 <div className='font-semibold'>{history?.map(item => item.menu.weight).reduce((acc, n) => acc + n, 0)} КГ</div>
             </div>
             <div className='flex-1 flex flex-col gap-3 items-center p-5 border shadow-lg rounded-lg'>
-                <div className='text-center text-primary-600 text-xl font-semibold'>Экономия денег</div>
+                <div className='text-center text-primary-600 text-xl font-semibold w-24'>Экономия денег</div>
                 <BadgeRussianRuble size={48} className='text-primary-600' />
                 <div className='font-semibold'>{history?.map(item => item.menu.initialprice - item.price).reduce((acc, n) => acc + n, 0)} РУБ</div>
             </div>

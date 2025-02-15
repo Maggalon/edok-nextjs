@@ -80,6 +80,7 @@ export async function POST(req: NextRequest) {
       `)
       .in('id', body.item_ids)
     if (error) return NextResponse.json({ error: error.message, status: 400 })
+    console.log(data);
     
     return NextResponse.json({ data })
 

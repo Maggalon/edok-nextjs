@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     try {
 
         const body = await req.json()
-        const { user_id, item_id } = body
+        const { user_id, item_id, quantity } = body
 
         const { data: item_res, error: item_error } = await supabase
             .from("item")
@@ -35,11 +35,18 @@ export async function POST(req: NextRequest) {
             .eq("id", item_id)
         if (item_error) return NextResponse.json({ error: item_error.message, status: 400 })
         if (!item_res.length) return NextResponse.json({ error: "Item_id error", status: 400 })
+        console.log(quantity);
 
         const { error: create_reservation_error } = await supabase
             .from("reservations")
-            .insert({ user_id, item_id })
-        if (create_reservation_error) return NextResponse.json({ error: create_reservation_error.message, status: 400 })
+            .insert({ user_id, item_id, quantity })
+        if (create_reservation_error) return NextResponse.json({ error: "Failed to create reservation: " + create_reservation_error.message, status: 400 })
+        
+        const { error: decrease_item_quantity_error } = await supabase
+            .from("item")
+            .update({ quantity: item_res[0].quantity - quantity })
+            .eq("id", item_id)
+        if (decrease_item_quantity_error) return NextResponse.json({ error: "Failed to decrease item quantity: " + decrease_item_quantity_error.message, status: 400 })
         
         return NextResponse.json({ success: true })
 
