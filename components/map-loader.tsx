@@ -1,6 +1,6 @@
 import Script from "next/script";
 
-const MAP_API_KEY = process.env.MAP_API_KEY
+const MAP_API_KEY = process.env.NEXT_PUBLIC_YANDEX_TOKEN
 
 export const YMapLoader = () => {
     return (

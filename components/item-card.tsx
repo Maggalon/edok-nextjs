@@ -41,7 +41,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, setSelectedItem }) => 
               <p className="text-gray-700 text-sm mb-2">Забери {item.collectDay} {item.collectTime}</p>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-primary-600">★ {item.branch.rating || '--'}</span>
+                  <span className="text-primary-600 font-semibold">★ {item.branch.rating || '--'}</span>
                   <span className="text-gray-600">{item.branch.distance + 'км' || '-- км'}</span>
                 </div>
                 <div className="text-right">

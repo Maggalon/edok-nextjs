@@ -12,10 +12,12 @@ export interface CollectionItem {
 export interface CompanyInfo {
     name: string;
     logo: string;
+    map_pin: string | null;
 }
 
 export interface BranchInfo {
     address: string;
+    coordinates: string;
     distance: number | undefined;
     rating: number | undefined;
     votesNumber: number;
@@ -59,4 +61,16 @@ export interface HistoryItem {
             }
         }
     }
+}
+
+export interface MapPin {
+  id: string;
+  address: string;
+  coordinates: string;
+  ratingsum: number;
+  votesnumber: number;
+  companyid: string;
+  company_logo: string;
+  company_name: string;
+  company_map_pin: string;
 }

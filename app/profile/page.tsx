@@ -33,19 +33,21 @@ import { useState, useEffect, useContext } from 'react'
 import { Telegram } from '@twa-dev/types'
 import { TWAContext } from '@/context/twa-context'
 import { HistoryCard } from '@/components/history-card'
-import { HistoryItem } from '@/lib/types'
+import { CollectionItem, HistoryItem } from '@/lib/types'
+import { ItemDetails } from '@/components/item-details'
 
 export default function Profile() {
-    const [isAuthenticated, setIsAuthenticated] = useState(false)
+    const [isAuthenticated, setIsAuthenticated] = useState(true)
     const router = useRouter()
     const [userName, setUserName] = useState<string>()
     const [history, setHistory] = useState<HistoryItem[]>()
+    const [selectedItem, setSelectedItem] = useState<CollectionItem | null>(null);
 
     const context = useContext(TWAContext)
     const webApp = context?.webApp
 
     useEffect(() => {
-        checkAuth()
+        //checkAuth()
     }, [])
 
     useEffect(() => {
@@ -66,7 +68,7 @@ export default function Profile() {
 
     const getHistory = async () => {
         if (isAuthenticated) {
-            const response = await fetch(`api/history?userId=${webApp!.initDataUnsafe.user?.id}`)
+            const response = await fetch(`api/history?userId=${972737130}`)
             const { data } = await response.json()
             console.log(data);
             setHistory(data)
@@ -145,23 +147,33 @@ export default function Profile() {
             </div>
         )
     }
+
+    if (selectedItem) {
+        return (
+            <ItemDetails selectedItem={selectedItem} setSelectedItem={setSelectedItem} isActive={true} />
+        );
+    }
   
   return (
     <div className='flex flex-col gap-10 mx-5'>
         <div className='fixed left-2 bg-white font-bold p-3 text-2xl flex gap-3 w-screen shadow-sm items-center justify-start'>
             <Smile size={48} className='text-primary-600 bg-primary-200 rounded-full p-2' />
             {userName}
-        </div>       
-        <div className='font-semibold text-lg flex flex-col items-center gap-3 border-2 rounded-lg h-96 overflow-auto p-3 mt-24'>
-            {/* <ShoppingBag size={48} className='text-primary-600' />
-            Здесь будет история заказов
-            <Link href="/" className='text-primary-600 font-semibold underline underline-offset-4'>Сделай первый</Link> */}
-            {history && history.map(item => {
-                return (
-                    <HistoryCard key={item.id} item={item} />
-                )
-            })}
-        </div>
+        </div>    
+        {history ?
+            <div className='font-semibold text-lg flex flex-col items-center gap-3 border-2 rounded-lg h-96 overflow-auto p-3 mt-24'>
+                {history && history.map(item => {
+                    return (
+                        <HistoryCard key={item.id} item={item} setSelectedItem={setSelectedItem} />
+                    )
+                })}
+            </div> :
+            <>
+                <ShoppingBag size={48} className='text-primary-600' />
+                Здесь будет история заказов
+                <Link href="/" className='text-primary-600 font-semibold underline underline-offset-4'>Сделай первый</Link>
+            </>
+        }   
         <div className='flex flex-col items-start gap-2 p-5 border shadow-lg rounded-lg'>
             <span className='font-semibold text-primary-600'>Пригласи друга</span>
             <span>Экономь деньги и спасай планету вместе с друзьями</span>

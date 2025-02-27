@@ -32,6 +32,37 @@ function toRadians(degrees: number) {
     return degrees * (Math.PI / 180);
 }
 
+export function calculateNewPoints(lat: number, lon: number) {
+    const earthRadiusKm = 6371; // Radius of the Earth in kilometers
+
+    // Convert latitude and longitude from degrees to radians
+    const latRad = lat * (Math.PI / 180);
+    const lonRad = lon * (Math.PI / 180);
+
+    // Calculate SW point
+    const swDistance = 10; // Distance in kilometers
+    const swBearing = 225 * (Math.PI / 180); // 225 degrees for SW
+    const swLat = Math.asin(Math.sin(latRad) * Math.cos(swDistance / earthRadiusKm) + Math.cos(latRad) * Math.sin(swDistance / earthRadiusKm) * Math.cos(swBearing));
+    const swLon = lonRad + Math.atan2(Math.sin(swBearing) * Math.sin(swDistance / earthRadiusKm) * Math.cos(latRad), Math.cos(swDistance / earthRadiusKm) - Math.sin(latRad) * Math.sin(swLat));
+
+    // Calculate NE point
+    const neDistance = 20; // Distance in kilometers
+    const neBearing = 45 * (Math.PI / 180); // 45 degrees for NE
+    const neLat = Math.asin(Math.sin(latRad) * Math.cos(neDistance / earthRadiusKm) + Math.cos(latRad) * Math.sin(neDistance / earthRadiusKm) * Math.cos(neBearing));
+    const neLon = lonRad + Math.atan2(Math.sin(neBearing) * Math.sin(neDistance / earthRadiusKm) * Math.cos(latRad), Math.cos(neDistance / earthRadiusKm) - Math.sin(latRad) * Math.sin(neLat));
+
+    // Convert back to degrees
+    const swLatDeg = swLat * (180 / Math.PI);
+    const swLonDeg = swLon * (180 / Math.PI);
+    const neLatDeg = neLat * (180 / Math.PI);
+    const neLonDeg = neLon * (180 / Math.PI);
+
+    return {
+        sw: { latitude: swLatDeg, longitude: swLonDeg },
+        ne: { latitude: neLatDeg, longitude: neLonDeg }
+    };
+}
+
 interface ValidationResult {
     isValid: boolean;
     errors: {
@@ -141,20 +172,22 @@ export const convertIntoCollectionItem = (item: any, geolocation: {lat: number, 
         },
         branch: {
             address: item.menu.branch.address,
-            votesNumber: item.menu.branch.votenumber | 0,
-            rating: item.menu.branch.votenumber > 0 ? 
-            Math.round(item.menu.branch.ratingsum / item.menu.branch.votesnumber * 100) / 100 : undefined,
+            votesNumber: item.menu.branch.votesnumber | 0,
+            rating: item.menu.branch.votesnumber > 0 ? 
+                Math.round(item.menu.branch.ratingsum / item.menu.branch.votesnumber * 100) / 100 : undefined,
+            coordinates: item.menu.branch.coordinates,
             distance: !geolocation ? undefined :
-            Number(calculateDistance(
-                geolocation.lat, 
-                geolocation.lng,
-                Number(item.menu.branch.coordinates.split(',')[0].replace('(', '')),
-                Number(item.menu.branch.coordinates.split(',')[1].replace(')', '')) 
-            ).toFixed(2))
+                Number(calculateDistance(
+                    geolocation.lat, 
+                    geolocation.lng,
+                    Number(item.menu.branch.coordinates.split(',')[0].replace('(', '')),
+                    Number(item.menu.branch.coordinates.split(',')[1].replace(')', '')) 
+                ).toFixed(2))
         },
         company: {
             name: item.menu.branch.company.name,
-            logo: item.menu.branch.company.logo
+            logo: item.menu.branch.company.logo,
+            map_pin: item.menu.branch.company.map_pin
         }
     }
     return newAvailableItem
