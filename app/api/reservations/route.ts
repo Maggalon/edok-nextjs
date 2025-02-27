@@ -37,10 +37,28 @@ export async function POST(req: NextRequest) {
         if (!item_res.length) return NextResponse.json({ error: "Item_id error", status: 400 })
         console.log(quantity);
 
-        const { error: create_reservation_error } = await supabase
-            .from("reservations")
-            .insert({ user_id, item_id, quantity })
-        if (create_reservation_error) return NextResponse.json({ error: "Failed to create reservation: " + create_reservation_error.message, status: 400 })
+        const { data: existingReservation, error: checkReservationError } = await supabase
+            .from('reservations')
+            .select('id, quantity')
+            .eq('user_id', user_id)
+            .eq("item_id", item_id)
+            .single()
+        if (checkReservationError) return NextResponse.json({ error: "Failed to check if reservation exists: " + checkReservationError.message, status: 400 })
+        
+        if (existingReservation) {
+            const { error: updateReservationError } = await supabase
+                .from("reservations")
+                .update({
+                    quantity: existingReservation.quantity + quantity
+                })
+                .eq('id', existingReservation.id)
+            if (updateReservationError) return NextResponse.json({ error: "Failed to update reservation: " + updateReservationError.message, status: 400 })
+        } else {
+            const { error: create_reservation_error } = await supabase
+                .from("reservations")
+                .insert({ user_id, item_id, quantity })
+            if (create_reservation_error) return NextResponse.json({ error: "Failed to create reservation: " + create_reservation_error.message, status: 400 })
+        }
         
         const { error: decrease_item_quantity_error } = await supabase
             .from("item")
