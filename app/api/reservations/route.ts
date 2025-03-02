@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
             .eq('user_id', user_id)
             .eq("item_id", item_id)
             .single()
-        if (checkReservationError) return NextResponse.json({ error: "Failed to check if reservation exists: " + checkReservationError.message, status: 400 })
+        if (checkReservationError && checkReservationError.message !== "JSON object requested, multiple (or no) rows returned") return NextResponse.json({ error: "Failed to check if reservation exists: " + checkReservationError.message, status: 400 })
         
         if (existingReservation) {
             const { error: updateReservationError } = await supabase

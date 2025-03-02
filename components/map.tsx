@@ -50,13 +50,11 @@
 import React, { useRef, useEffect, useState, useContext } from "react";
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
-import geoJson from "@/chicago-parks.json";
 import { calculateDistance, calculateNewPoints, convertIntoCollectionItem } from "@/lib/helpers";
 import { TWAContext } from "@/context/twa-context";
 import { Modal } from "./modal";
 import { CollectionItem, MapPin } from "@/lib/types";
-import { RussianRuble, Star } from "lucide-react";
-import { ItemDetails } from "./item-details";
+import { Star } from "lucide-react";
 
 const Map = ({ data, setSelectedItem }: {data: MapPin[] | null; setSelectedItem: (item: CollectionItem) => void}) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);

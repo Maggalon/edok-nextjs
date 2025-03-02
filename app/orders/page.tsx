@@ -5,6 +5,7 @@ import { ItemDetails } from "@/components/item-details";
 import { TWAContext } from "@/context/twa-context";
 import { convertIntoCollectionItem } from "@/lib/helpers";
 import { CollectionItem, Reservation, ReservedItem } from "@/lib/types";
+import { QrCode } from "lucide-react";
 import { redirect } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 
@@ -18,12 +19,12 @@ export default function Orders() {
     const [selectedItem, setSelectedItem] = useState<CollectionItem | null>(null);
 
     const getReservations = async () => {
-      // const session = await fetch('/api/session')
-      // if (!session.ok) {
-      //   redirect('/profile')
-      // }
+      const session = await fetch('/api/session')
+      if (!session.ok) {
+        redirect('/profile')
+      }
 
-      const results = await fetch(`/api/reservations?userId=${972737130}`)
+      const results = await fetch(`/api/reservations?userId=${webApp?.initDataUnsafe.user?.id}`)
       const data = await results.json()
       console.log(data);
       
@@ -77,7 +78,29 @@ export default function Orders() {
       <div>
         <div className="text-2xl font-bold p-5 w-screen fixed top-0 left-0 bg-white shadow-sm">Заказы</div>
         <div className="flex flex-col gap-3 mt-20">
-          {reservations?.map(item => {
+          {!reservations &&
+          <>
+            <div className="flex items-center gap-4 border shadow-xl m-2 p-4 rounded-lg">
+              <div className="w-12 h-12 rounded-full bg-gray-300 animate-pulse flex items-center justify-center flex-shrink-0"></div>
+              <div className="flex-1 flex flex-col gap-2">
+                <div className="w-full h-5 rounded-full bg-gray-300 animate-pulse"></div>
+                <div className="w-1/2 h-4 rounded-full bg-gray-300 animate-pulse"></div>
+              </div>
+              <div className="w-10 h-5 rounded-full bg-gray-300 animate-pulse"></div>
+              <QrCode size={64} className="text-gray-300 animate-pulse p-1 rounded-xl" />
+            </div>
+            <div className="flex items-center gap-4 border shadow-xl m-2 p-4 rounded-lg">
+              <div className="w-12 h-12 rounded-full bg-gray-300 animate-pulse flex items-center justify-center flex-shrink-0"></div>
+              <div className="flex-1 flex flex-col gap-2">
+                <div className="w-full h-5 rounded-full bg-gray-300 animate-pulse"></div>
+                <div className="w-1/2 h-4 rounded-full bg-gray-300 animate-pulse"></div>
+              </div>
+              <div className="w-10 h-5 rounded-full bg-gray-300 animate-pulse"></div>
+              <QrCode size={64} className="text-gray-300 animate-pulse p-1 rounded-xl" />
+            </div>
+          </>
+          }
+          {reservations && reservations.map(item => {
             return (
               <ItemCardSmall key={item.itemInfo.id} item={item} setSelectedItem={setSelectedItem} />
             )

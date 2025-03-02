@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { getSession } from "@/lib/session";
 import { TWAContext } from "@/context/twa-context";
 import { toast, ToastContainer } from "react-toastify";
+import { BeatLoader } from "react-spinners"
 
 interface ItemDetailsProps {
     selectedItem: CollectionItem;
@@ -23,19 +24,22 @@ export const ItemDetails: React.FC<ItemDetailsProps> = ({ selectedItem, setSelec
   const webApp = context?.webApp
 
   const [quantity, setQuantity] = useState<number>(1)
+  const [reservationLoader, setReservationLoader] = useState<boolean>(false)
 
   const handleReserve = async () => {
-    // const session = await fetch('/api/session')
-    // if (!session.ok) {
-    //   redirect('/profile')
-    // }
+    
+    const session = await fetch('/api/session')
+    if (!session.ok) {
+      redirect('/profile')
+    }
     // console.log(user);
+    setReservationLoader(true)
     const response = await fetch(`/api/reservations`, {
       method: "POST",
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        // user_id: webApp?.initDataUnsafe.user?.id,
-        user_id: 972737130,
+        user_id: webApp?.initDataUnsafe.user?.id,
+        // user_id: 972737130,
         item_id: selectedItem.id,
         quantity
       })
@@ -50,7 +54,8 @@ export const ItemDetails: React.FC<ItemDetailsProps> = ({ selectedItem, setSelec
         quantity: selectedItem.quantity - quantity
       })
     } else toast.error("Ошибка резервирования", {position: 'top-center'})
-
+    
+    setReservationLoader(false)
   }
   
   return (
@@ -151,7 +156,7 @@ export const ItemDetails: React.FC<ItemDetailsProps> = ({ selectedItem, setSelec
           </div>
   
           {/* Fixed Bottom Button */}
-          {isActive && <div className="fixed bottom-16 left-0 right-0 p-4 bg-white border-t border-gray-100">
+          {isActive && <div className="fixed bottom-16 left-0 right-0 p-4 bg-white border-t border-gray-200">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <span className="text-gray-400 line-through">₽{selectedItem.menuItem.initialPrice}</span>
@@ -161,8 +166,13 @@ export const ItemDetails: React.FC<ItemDetailsProps> = ({ selectedItem, setSelec
             <div className="flex w-full justify-center">
               <button onClick={() => setQuantity(Math.max(1, quantity-1))} className="bg-primary-600 p-4 border-r-2 rounded-l-full text-white font-semibold text-lg hover:bg-primary-700">-</button>
               <button onClick={handleReserve} className="bg-primary-600 text-white px-4 font-semibold hover:bg-primary-700 transition-colors flex flex-col items-center justify-center">
-                Забронировать
-                <span>{`${quantity} шт.`}</span>
+                {!reservationLoader ?
+                  <>
+                  Забронировать
+                  <span>{`${quantity} шт.`}</span>
+                  </> :
+                  <BeatLoader color="#ffffff" className="mx-8" />
+                }
               </button>
               <button onClick={() => setQuantity(Math.min(selectedItem.quantity, quantity+1))} className="bg-primary-600 p-4 border-l-2 rounded-r-full text-white font-semibold text-lg hover:bg-primary-700">+</button>
             </div>

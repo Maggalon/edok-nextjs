@@ -13,6 +13,15 @@ export async function POST(req: NextRequest) {
         })
         if (error) return NextResponse.json({ error: error.message, status: 400 })
 
+        console.log(data);
+        for (const item of data) {
+            const pin_url = await supabase
+                .storage
+                .from("companies")
+                .createSignedUrl(`${item.companyid}/${item.company_map_pin}`, 600)
+            item.company_map_pin = pin_url.data!.signedUrl
+        }
+        
         return NextResponse.json({ data })
     } catch (e) {
         return NextResponse.json({ error: "Failed getting branches", details: e instanceof Error ? e.message : String(e) }, { status: 500 })

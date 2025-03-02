@@ -8,7 +8,7 @@ interface ItemCardProps {
 
 export const ItemCard: React.FC<ItemCardProps> = ({ item, setSelectedItem }) => {
     return (
-        <div 
+          <div 
             className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
             onClick={() => setSelectedItem(item)}
           >
