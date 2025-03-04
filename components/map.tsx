@@ -94,7 +94,7 @@ const Map = ({ data, setSelectedItem }: {data: MapPin[] | null; setSelectedItem:
   }
 
   const getToken = async () => {
-    const response = await fetch("/api/mapbox/token")
+    const response = await fetch("/api/mapbox")
     const { token } = await response.json()
     mapboxgl.accessToken = token
   }
