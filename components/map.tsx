@@ -93,11 +93,17 @@ const Map = ({ data, setSelectedItem }: {data: MapPin[] | null; setSelectedItem:
     
   }
 
+  const getToken = async () => {
+    const response = await fetch("/api/mapbox")
+    const { token } = await response.json()
+    mapboxgl.accessToken = token
+  }
+
   useEffect(() => {
     const bounds = calculateNewPoints(geolocation!.lat, geolocation!.lng);
     
-    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
-    
+    getToken()
+
     const map = new mapboxgl.Map({
       container: mapContainerRef.current!,
       style: "mapbox://styles/mapbox/streets-v12",
