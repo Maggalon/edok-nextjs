@@ -93,55 +93,54 @@ const Map = ({ data, setSelectedItem }: {data: MapPin[] | null; setSelectedItem:
     
   }
 
-  const getToken = async () => {
-    const response = await fetch("/api/mapbox")
-    const { token } = await response.json()
-    mapboxgl.accessToken = token
-  }
-
   useEffect(() => {
-    const bounds = calculateNewPoints(geolocation!.lat, geolocation!.lng);
-    
-    getToken()
-
-    const map = new mapboxgl.Map({
-      container: mapContainerRef.current!,
-      style: "mapbox://styles/mapbox/streets-v12",
-      // style: "mapbox://styles/maggalon/cm78j9w5200cm01r0ghcg1los",
-      // center: [-87.661557, 41.893748],
-      // zoom: 10.7,
-      language: "auto",
-      bounds: [[ bounds.sw.longitude, bounds.sw.latitude ],
-               [ bounds.ne.longitude, bounds.ne.latitude ]]
-    });
-
-    // Map initialization code goes here
-    const user_marker = document.createElement('div')
-    user_marker.style.backgroundImage = "url(\"https://tan-worried-grasshopper-459.mypinata.cloud/ipfs/bafkreihkw4544lozfgjahd6acfgio3i2rmjgj7rteybdnkowuksswzkilu\")"
-    user_marker.style.backgroundSize = 'cover'
-    user_marker.style.width = '20px'
-    user_marker.style.height = '20px'
-    new mapboxgl.Marker(user_marker).setLngLat([geolocation!.lng, geolocation!.lat]).addTo(map)
-
-    for (const mapItem of data!) {
-      const el = document.createElement('div')
-      el.style.backgroundImage = `url(${mapItem.company_map_pin})`
-      el.style.backgroundSize = 'cover';
-      el.style.width = '35px'; // Set appropriate width
-      el.style.height = '41px';
-      el.addEventListener('click', () => {
-        setShowModal(true)
-        setBranchInfo(mapItem)   
-        handleMapPinClick(mapItem)     
-      })
-
-      const lat = Number(mapItem.coordinates.split(',')[0].replace('(', ''))
-      const lng = Number(mapItem.coordinates.split(',')[1].replace(')', ''))
-      const marker = new mapboxgl.Marker(el).setLngLat([lng, lat]).addTo(map)
-      console.log(marker);
+    let map: any;
+    const initializeMap = async () => {
+      const bounds = calculateNewPoints(geolocation!.lat, geolocation!.lng);
       
-    }
+      const response = await fetch("/api/mapbox")
+      const { token } = await response.json()
+      mapboxgl.accessToken = token
 
+      map = new mapboxgl.Map({
+        container: mapContainerRef.current!,
+        style: "mapbox://styles/mapbox/streets-v12",
+        // style: "mapbox://styles/maggalon/cm78j9w5200cm01r0ghcg1los",
+        // center: [-87.661557, 41.893748],
+        // zoom: 10.7,
+        language: "auto",
+        bounds: [[ bounds.sw.longitude, bounds.sw.latitude ],
+                [ bounds.ne.longitude, bounds.ne.latitude ]]
+      });
+
+      // Map initialization code goes here
+      const user_marker = document.createElement('div')
+      user_marker.style.backgroundImage = "url(\"https://tan-worried-grasshopper-459.mypinata.cloud/ipfs/bafkreihkw4544lozfgjahd6acfgio3i2rmjgj7rteybdnkowuksswzkilu\")"
+      user_marker.style.backgroundSize = 'cover'
+      user_marker.style.width = '20px'
+      user_marker.style.height = '20px'
+      new mapboxgl.Marker(user_marker).setLngLat([geolocation!.lng, geolocation!.lat]).addTo(map)
+
+      for (const mapItem of data!) {
+        const el = document.createElement('div')
+        el.style.backgroundImage = `url(${mapItem.company_map_pin})`
+        el.style.backgroundSize = 'cover';
+        el.style.width = '35px'; // Set appropriate width
+        el.style.height = '41px';
+        el.addEventListener('click', () => {
+          setShowModal(true)
+          setBranchInfo(mapItem)   
+          handleMapPinClick(mapItem)     
+        })
+
+        const lat = Number(mapItem.coordinates.split(',')[0].replace('(', ''))
+        const lng = Number(mapItem.coordinates.split(',')[1].replace(')', ''))
+        const marker = new mapboxgl.Marker(el).setLngLat([lng, lat]).addTo(map)
+        console.log(marker);
+        
+      }
+    }
+    initializeMap()
     // map.on("load", function () {
     //   map.loadImage(
     //     "https://tan-worried-grasshopper-459.mypinata.cloud/ipfs/bafkreifq5aykj7ccu2q6fy2zdonugkx5qjkfrzy3ur6pv5aqvrul7vnzli",
@@ -215,7 +214,7 @@ const Map = ({ data, setSelectedItem }: {data: MapPin[] | null; setSelectedItem:
     //     .addTo(map);
     // });
 
-    return () => map.remove();
+    return () => {if (map) { map.remove()}};
   }, []);
 
   return (
