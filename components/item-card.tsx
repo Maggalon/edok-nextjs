@@ -31,7 +31,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, setSelectedItem }) => 
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-10 h-10 rounded-full bg-transparent flex items-center justify-center">
                   {/* <span className="text-white text-xs">Logo</span> */}
-                  <img src={item.company.logo} alt={item.company.name} className="w-full object-cover" />
+                  <img src={item.company.logo} alt={item.company.name} className="w-full rounded-full object-cover" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900">{item.menuItem.name}</h3>

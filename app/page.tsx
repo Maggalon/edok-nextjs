@@ -191,7 +191,7 @@ export default function Home() {
               />
               {query && <X onClick={clearQuery} className='text-black absolute w-5 h-5 top-1/2 right-3 transform -translate-y-1/2' />}
             </div>
-            <button onClick={() => setOpenFilters(true)} className="p-2 border border-gray-200 rounded-lg hover:bg-primary-50">
+            <button onClick={() => setOpenFilters(!openFilters)} className="p-2 border border-gray-200 rounded-lg hover:bg-primary-50">
               <SlidersHorizontal className="w-6 h-6 text-gray-700" />
             </button>
             {/* <button className="p-2 border border-gray-200 rounded-lg hover:bg-primary-50">

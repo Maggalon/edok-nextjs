@@ -1,51 +1,4 @@
 'use client';
-// import { type FC } from 'react';
-// import React from 'react';
-// import ReactDOM from 'react-dom';
-// import Image from 'next/image';
-// import { type LngLat } from '@yandex/ymaps3-types';
-
-// const ymaps3Reactify = await ymaps3.import('@yandex/ymaps3-reactify');
-// const reactify = ymaps3Reactify.reactify.bindTo(React, ReactDOM);
-// const { YMap, YMapDefaultSchemeLayer, YMapDefaultFeaturesLayer, YMapControls, YMapMarker } =
-//   reactify.module(ymaps3);
-
-// const { YMapZoomControl } = reactify.module(await ymaps3.import('@yandex/ymaps3-controls@0.0.1'));
-
-// interface MapProps {
-//   coordinates:
-//     | {
-//         lat: number;
-//         lng: number;
-//       }
-//     | undefined;
-// }
-
-// const Map: FC<MapProps> = ({ coordinates }) => {
-//   if (!coordinates) return null;
-
-//   const location = { center: [coordinates.lng, coordinates.lat], zoom: 13 };
-
-//   return (
-//     <YMap location={location} className="min-h-[calc(100vh-300px)] md:min-h-[calc(100vh-280px)]">
-//       <YMapControls position="left">
-//         <YMapZoomControl />
-//       </YMapControls>
-
-//       <YMapDefaultSchemeLayer />
-//       <YMapDefaultFeaturesLayer />
-
-//       <YMapMarker coordinates={location.center as LngLat} zIndex={1}>
-//         <div className="relative h-[56px] w-[46px]">
-//           <Image src="/icon-location.svg" alt="location" fill />
-//         </div>
-//       </YMapMarker>
-//     </YMap>
-//   );
-// };
-
-// export default Map;
-
 
 import React, { useRef, useEffect, useState, useContext } from "react";
 import mapboxgl from "mapbox-gl";
@@ -228,7 +181,7 @@ const Map = ({ data, setSelectedItem }: {data: MapPin[] | null; setSelectedItem:
         <div className="w-full">
           <div className="flex w-full justify-start items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-transparent flex items-center justify-center flex-shrink-0">
-                <img src={branchInfo.company_logo} alt={branchInfo.company_name} className="w-full object-cover" />
+                <img src={branchInfo.company_logo} alt={branchInfo.company_name} className="w-full rounded-full object-cover" />
             </div>
             <div className="flex-1">
                 <h1 className="text-lg font-bold text-gray-900">{branchInfo.company_name}</h1>
@@ -246,6 +199,24 @@ const Map = ({ data, setSelectedItem }: {data: MapPin[] | null; setSelectedItem:
             </div>
           </div>
           <div className='flex flex-col items-center gap-3 border-2 rounded-lg h-96 overflow-auto p-3 mt-5'>
+              {!branchItems &&
+                <div className="flex items-center justify-start w-full gap-2 shadow-md border rounded-lg p-2">
+                  <div className="w-20 h-20 rounded-lg bg-gray-300 animate-pulse flex items-center justify-center">
+                    <svg className="w-5 h-5 text-gray-200 dark:text-gray-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
+                      <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"/>
+                    </svg>
+                  </div>
+                  <div className="flex-1 flex flex-col h-full justify-between">
+                    <div className="h-4 w-full bg-gray-300 animate-pulse rounded-full"></div>
+                    <div className="h-3 w-3/4 bg-gray-300 animate-pulse rounded-full"></div>
+                    <div className="h-5 w-1/4 bg-gray-300 animate-pulse rounded-full"></div>
+                  </div>
+                  <div className="flex h-full w-10 flex-col justify-between items-end">
+                    <div className="h-5 w-full bg-gray-300 animate-pulse rounded-full"></div>
+                    <div className="h-5 w-full bg-gray-300 animate-pulse rounded-full"></div>
+                  </div>
+                </div>
+              }
               {branchItems && branchItems.map((item: CollectionItem) => {
                 return (
                   <div key={item.id} onClick={() => setSelectedItem(item)} className="flex items-center justify-start w-full gap-2 shadow-md border rounded-lg p-2">

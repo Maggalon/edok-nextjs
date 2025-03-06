@@ -20,6 +20,11 @@ export async function POST(req: NextRequest) {
                 .from("companies")
                 .createSignedUrl(`${item.companyid}/${item.company_map_pin}`, 600)
             item.company_map_pin = pin_url.data!.signedUrl
+            const logo_url = await supabase
+                .storage
+                .from('companies')
+                .createSignedUrl(`${item.companyid}/${item.company_logo}`, 600)
+            item.company_logo = logo_url.data!.signedUrl
         }
         
         return NextResponse.json({ data })

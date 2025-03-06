@@ -88,7 +88,7 @@ export const ItemDetails: React.FC<ItemDetailsProps> = ({ selectedItem, setSelec
           <div className="px-4 py-6">
             <div className="flex items-start gap-4 mb-6">
               <div className="w-12 h-12 rounded-full bg-transparent flex items-center justify-center flex-shrink-0">
-              <img src={selectedItem.company.logo} alt={selectedItem.company.name} className="w-full object-cover" />
+                <img src={selectedItem.company.logo} alt={selectedItem.company.name} className="w-full rounded-full object-cover" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">{selectedItem.menuItem.name}</h1>
