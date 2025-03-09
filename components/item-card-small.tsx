@@ -22,7 +22,7 @@ export const ItemCardSmall: React.FC<{ item: ReservedItem; setSelectedItem: (sel
     return (
         <div className="flex items-center gap-4 border shadow-xl m-2 p-4 rounded-lg">
             <div className="w-12 h-12 rounded-full bg-transparent flex items-center justify-center flex-shrink-0">
-                <img src={item.itemInfo.company.logo} alt={item.itemInfo.company.name} className="w-full object-cover" />
+                <img src={item.itemInfo.company.logo} alt={item.itemInfo.company.name} className="w-full rounded-full object-cover" />
             </div>
             <div onClick={() => setSelectedItem(item.itemInfo)} className="flex-1">
                 <h1 className="text-xl font-bold text-gray-900">{item.itemInfo.menuItem.name.length > 18 ? item.itemInfo.menuItem.name.slice(0, 16) + "..." : item.itemInfo.menuItem.name}</h1>

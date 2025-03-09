@@ -10,6 +10,7 @@ import { TWAContext } from '@/context/twa-context';
 import { Modal } from '@/components/modal';
 import MultiRangeSlider from '@/components/multirange-slider';
 import Map from '@/components/map';
+import Image from 'next/image';
 
 interface Filters {
   today: boolean;
@@ -54,7 +55,7 @@ export default function Home() {
     const response = await fetch(`/api/items`)
     const data = await response.json()
     //console.log(data.results);
-    const availableItems: CollectionItem[] = []
+    let availableItems: CollectionItem[] = []
 
     for (let item of data.results) {
       
@@ -65,6 +66,8 @@ export default function Home() {
       availableItems.push(newAvailableItem)
       
     }
+
+    availableItems = availableItems.filter(item => item.quantity > 0)
 
     sortByPrice(availableItems)
     setItems(availableItems)
@@ -166,6 +169,17 @@ export default function Home() {
     }
   }, [items])
 
+  useEffect(() => {
+    if (items && selectedItem) {
+      for (let item of items) {
+        if (item.id === selectedItem.id) {
+          item.quantity = selectedItem.quantity
+          break
+        }
+      }
+    }
+  }, [selectedItem])
+
   if (selectedItem) {
     return (
       <ItemDetails selectedItem={selectedItem} setSelectedItem={setSelectedItem} isActive={true} />
@@ -252,6 +266,12 @@ export default function Home() {
                 <div className="text-right w-24 h-3 rounded-full bg-gray-300 animate-pulse"></div>
               </div>
             </div>
+          </div>
+        }
+        {view === 'list' && items?.length === 0 &&
+          <div className='w-full h-96 flex flex-col justify-center items-center'>
+            <Image src={"/Edok-staff.png"} width={200} height={200} alt='Edok logo' />
+            <span className='text-primary-600 font-semibold'>Здесь будет список доступных позиций</span>
           </div>
         }
         {items && view === 'list' && items.map((item) => {

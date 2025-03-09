@@ -65,7 +65,7 @@ export const HistoryCard: React.FC<{ item: any, setSelectedItem: (item: Collecti
     return (
         <div className="flex items-center gap-4 border shadow-md p-4 rounded-lg">
             <div className="w-12 h-12 rounded-full bg-transparent flex items-center justify-center flex-shrink-0">
-                <img src={item.menu.branch.company.logo} alt={item.menu.branch.company.name} className="w-full object-cover" />
+                <img src={item.menu.branch.company.logo} alt={item.menu.branch.company.name} className="w-full rounded-full object-cover" />
             </div>
             <div className="flex-1">
                 <h1 className="text-xl font-bold text-gray-900">{item.menu.name.length > 18 ? item.menu.name.slice(0, 16) + "..." : item.menu.name}</h1>

@@ -39,7 +39,7 @@ export const ItemDetails: React.FC<ItemDetailsProps> = ({ selectedItem, setSelec
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         user_id: webApp?.initDataUnsafe.user?.id,
-        // user_id: 972737130,
+        //user_id: 972737130,
         item_id: selectedItem.id,
         quantity
       })
@@ -53,6 +53,7 @@ export const ItemDetails: React.FC<ItemDetailsProps> = ({ selectedItem, setSelec
         ...selectedItem,
         quantity: selectedItem.quantity - quantity
       })
+      //window.location.reload()
     } else toast.error("Ошибка резервирования", {position: 'top-center'})
     
     setReservationLoader(false)
@@ -79,9 +80,9 @@ export const ItemDetails: React.FC<ItemDetailsProps> = ({ selectedItem, setSelec
                 </button>
               </div> */}
             </div>
-            <div className="absolute bottom-4 left-4 bg-white px-2 py-1 rounded-full text-sm font-medium text-primary-600">
+            {isActive && <div className="absolute bottom-4 left-4 bg-white px-2 py-1 rounded-full text-sm font-medium text-primary-600">
               {selectedItem.quantity} осталось
-            </div>
+            </div>}
           </div>
   
           {/* Content */}

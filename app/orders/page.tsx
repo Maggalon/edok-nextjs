@@ -6,6 +6,7 @@ import { TWAContext } from "@/context/twa-context";
 import { convertIntoCollectionItem } from "@/lib/helpers";
 import { CollectionItem, Reservation, ReservedItem } from "@/lib/types";
 import { QrCode } from "lucide-react";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 
@@ -99,6 +100,12 @@ export default function Orders() {
               <QrCode size={64} className="text-gray-300 animate-pulse p-1 rounded-xl" />
             </div>
           </>
+          }
+          {reservations?.length === 0 &&
+            <div className='w-full h-96 flex flex-col justify-center items-center'>
+              <Image src={"/Edok-staff.png"} width={200} height={200} alt='Edok logo' />
+              <span className='text-primary-600 w-3/4 text-center font-semibold'>Здесь будет список забронированных вами позиций</span>
+            </div>
           }
           {reservations && reservations.map(item => {
             return (

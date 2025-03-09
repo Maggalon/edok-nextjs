@@ -156,13 +156,39 @@ const defaultRules: ValidationRules = {
     }
 };
 
+const getTimeRange = (timerange: string) => {
+    const timeRangeArray = JSON.parse(timerange);
+    const lowerBoundUTC = new Date(`${timeRangeArray[0]}Z`); // Adding Z to denote UTC
+    const upperBoundUTC = new Date(`${timeRangeArray[1]}Z`); // Adding Z to denote UTC
+
+    // Get user's timezone
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    // Format the dates in user's local timezone
+    const lowerBoundLocal = lowerBoundUTC.toLocaleString(undefined, {
+        timeZone: userTimeZone,
+        dateStyle: 'medium',
+        timeStyle: 'medium'
+    });
+
+    const upperBoundLocal = upperBoundUTC.toLocaleString(undefined, {
+        timeZone: userTimeZone,
+        dateStyle: 'medium',
+        timeStyle: 'medium'
+    });
+
+    return `${lowerBoundLocal.split(", ")[1].substring(0, 5)}-${upperBoundLocal.split(", ")[1].substring(0, 5)}`
+}
+
 export const convertIntoCollectionItem = (item: any, geolocation: {lat: number, lng: number} | null | undefined) => {
+    
+
     const newAvailableItem: CollectionItem = {
         id: item.id,
         newPrice: item.newprice,
         quantity: item.quantity,
-        collectDay: item.collectday.toLowerCase(),
-        collectTime: JSON.parse(item.collecttimerange).map((i: string) => i.split(' ')[1].slice(0, 5)).join('-'),
+        collectDay: item.collecttimerange.split("\"")[3].split(" ")[0] === new Date().toISOString().split("T")[0] ? "сегодня" : "завтра",
+        collectTime: getTimeRange(item.collecttimerange),
         menuItem: {
             name: item.menu.name,
             type: item.menu.type,

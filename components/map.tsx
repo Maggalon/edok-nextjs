@@ -49,7 +49,7 @@ const Map = ({ data, setSelectedItem }: {data: MapPin[] | null; setSelectedItem:
   useEffect(() => {
     let map: any;
     const initializeMap = async () => {
-      const bounds = calculateNewPoints(geolocation!.lat, geolocation!.lng);
+      //const bounds = calculateNewPoints(geolocation!.lat, geolocation!.lng);
       
       const response = await fetch("/api/mapbox")
       const { token } = await response.json()
@@ -59,11 +59,11 @@ const Map = ({ data, setSelectedItem }: {data: MapPin[] | null; setSelectedItem:
         container: mapContainerRef.current!,
         style: "mapbox://styles/mapbox/streets-v12",
         // style: "mapbox://styles/maggalon/cm78j9w5200cm01r0ghcg1los",
-        // center: [-87.661557, 41.893748],
-        // zoom: 10.7,
+        center: [geolocation!.lng, geolocation!.lat],
+        zoom: 11,
         language: "auto",
-        bounds: [[ bounds.sw.longitude, bounds.sw.latitude ],
-                [ bounds.ne.longitude, bounds.ne.latitude ]]
+        // bounds: [[ bounds.sw.longitude, bounds.sw.latitude ],
+        //         [ bounds.ne.longitude, bounds.ne.latitude ]]
       });
 
       // Map initialization code goes here
