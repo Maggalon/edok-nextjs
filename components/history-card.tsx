@@ -8,6 +8,7 @@ import { QRCode } from "./qr-code";
 import { convertIntoCollectionItem } from "@/lib/helpers";
 import { TWAContext } from "@/context/twa-context";
 import { ItemDetails } from "./item-details";
+import { toast, ToastContainer } from "react-toastify";
 
 interface Item {
     id: string;
@@ -58,6 +59,8 @@ export const HistoryCard: React.FC<{ item: any, setSelectedItem: (item: Collecti
             console.log(newAvailableItem);
 
             setSelectedItem(newAvailableItem)
+        } else {
+            toast.error("Товар недоступен", {position: 'top-center'})
         }
         
     }
@@ -75,6 +78,7 @@ export const HistoryCard: React.FC<{ item: any, setSelectedItem: (item: Collecti
             {/* <Modal isOpen={open} onClose={() => handleClose()}>
                 <QRCode data={JSON.stringify(item.reservationInfo)} />
             </Modal> */}
+            <ToastContainer className="text-xl font-semibold" />
         </div>
     )
 }
