@@ -10,6 +10,7 @@ import { getSession } from "@/lib/session";
 import { TWAContext } from "@/context/twa-context";
 import { toast, ToastContainer } from "react-toastify";
 import { BeatLoader } from "react-spinners"
+import { Modal } from "./modal";
 
 interface ItemDetailsProps {
     selectedItem: CollectionItem;
@@ -25,12 +26,20 @@ export const ItemDetails: React.FC<ItemDetailsProps> = ({ selectedItem, setSelec
 
   const [quantity, setQuantity] = useState<number>(1)
   const [reservationLoader, setReservationLoader] = useState<boolean>(false)
-
+  const [showContacts, setShowContacts] = useState<boolean>(false)
+  const [companyName, setCompanyName] = useState<string>("")
+  const [contacts, setContacts] = useState<string>("")
+  
   const handleReserve = async () => {
     
     const session = await fetch('/api/session')
     if (!session.ok) {
       redirect('/profile')
+    }
+
+    if (selectedItem.menuItem.type === "Партнерство") {
+      setShowContacts(true)
+      return
     }
     // console.log(user);
     setReservationLoader(true)
@@ -56,6 +65,40 @@ export const ItemDetails: React.FC<ItemDetailsProps> = ({ selectedItem, setSelec
       //window.location.reload()
     } else toast.error("Ошибка резервирования", {position: 'top-center'})
     
+    setReservationLoader(false)
+  }
+
+  const handleConfirm = async () => {
+    if (companyName === "") {
+      toast.error("Введите название компании", {position: 'top-center'})
+      return
+    }
+    if (contacts === "") {
+      toast.error("Введите контактную информацию", {position: 'top-center'})
+      return
+    }
+
+    setReservationLoader(true)
+
+    const response = await fetch('/api/contacts', {
+      method: "POST",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: companyName,
+        contacts
+      })
+    })
+    const data = await response.json()
+    console.log(data);
+    
+    if (data.success) {
+      toast.info("Мы скоро с Вами свяжемся", {position: 'top-center'})
+      setShowContacts(false)
+      setCompanyName("")
+      setContacts("")
+    } else toast.error("Ошибка", {position: 'top-center'})
+
+
     setReservationLoader(false)
   }
   
@@ -165,8 +208,8 @@ export const ItemDetails: React.FC<ItemDetailsProps> = ({ selectedItem, setSelec
               </div>
             </div>
             <div className="flex w-full justify-center">
-              <button onClick={() => setQuantity(Math.max(1, quantity-1))} className="bg-primary-600 p-4 border-r-2 rounded-l-full text-white font-semibold text-lg hover:bg-primary-700">-</button>
-              <button onClick={handleReserve} className="bg-primary-600 text-white px-4 font-semibold hover:bg-primary-700 transition-colors flex flex-col items-center justify-center">
+              {/* <button onClick={() => setQuantity(Math.max(1, quantity-1))} className="bg-primary-600 p-4 border-r-2 rounded-l-full text-white font-semibold text-lg hover:bg-primary-700">-</button> */}
+              {/* <button onClick={handleReserve} className="bg-primary-600 text-white px-4 font-semibold hover:bg-primary-700 transition-colors flex flex-col items-center justify-center">
                 {!reservationLoader ?
                   <>
                   Забронировать
@@ -174,11 +217,43 @@ export const ItemDetails: React.FC<ItemDetailsProps> = ({ selectedItem, setSelec
                   </> :
                   <BeatLoader color="#ffffff" className="mx-8" />
                 }
+              </button> */}
+              <button onClick={handleReserve} className="bg-primary-600 rounded-full text-white px-8 py-2 font-semibold hover:bg-primary-700 transition-colors flex flex-col items-center justify-center">
+                {!reservationLoader ?
+                  <>
+                  Забронировать
+                  </> :
+                  <BeatLoader color="#ffffff" className="mx-8" />
+                }
               </button>
-              <button onClick={() => setQuantity(Math.min(selectedItem.quantity, quantity+1))} className="bg-primary-600 p-4 border-l-2 rounded-r-full text-white font-semibold text-lg hover:bg-primary-700">+</button>
+              {/* <button onClick={() => setQuantity(Math.min(selectedItem.quantity, quantity+1))} className="bg-primary-600 p-4 border-l-2 rounded-r-full text-white font-semibold text-lg hover:bg-primary-700">+</button> */}
             </div>
           </div>}
-
+          <Modal isOpen={showContacts} onClose={() => setShowContacts(false)}>
+            <div className="w-full flex flex-col gap-4">
+                <div className="w-full flex flex-col items-start gap-2">
+                    <span className="font-semibold">Название компании</span>
+                    <input
+                        type="text"
+                        placeholder=""
+                        className="w-full px-2 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        value={companyName}
+                        onChange={e => setCompanyName(e.target.value)}
+                    />
+                </div>
+                <div className="w-full flex flex-col items-start gap-2">
+                    <span className="font-semibold">Контактная информация</span>
+                    <input
+                        type="text"
+                        placeholder=""
+                        className="w-full px-2 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        value={contacts}
+                        onChange={e => setContacts(e.target.value)}
+                    />
+                </div>
+                <button onClick={handleConfirm} className="w-full bg-primary-600 rounded-lg text-white p-1 flex items-center justify-center active:bg-primary-700">{reservationLoader ? <BeatLoader className="m-0.5" color="#ffffff" /> : "Подтвердить"}</button>
+            </div>
+          </Modal>
           <ToastContainer className="text-xl font-semibold" />
         </div>
       );
